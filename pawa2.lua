@@ -318,12 +318,12 @@ Players.PlayerRemoving:Connect(function()
     Dropdown:Refresh(getPlayerList())
 end)
 
-local MainTab = Window:Tab({
+local VisualTab = Window:Tab({
     Title = "Visuals",
     Icon = "eye",
 })
 
-Tab:Toggle({
+VisualTab:Toggle({
     Title = "Player ESP",
     Desc = "See every player.",
     Value = false,
