@@ -585,3 +585,141 @@ VisualTab:Toggle({
         end
     end
 })
+
+local itemTargets = {
+    ["AirHorn"] = "Air Horn",
+    ["SmokeBomb"] = "Smoke Bomb",
+    ["ResearchCapsule"] = "Research Capsule",
+    ["ProteinBar"] = "Protein Bar",
+    ["Jawbreaker"] = "Jawbreaker",
+    ["EjectButton"] = "Eject Button",
+    ["HealthKit"] = "MedKit",
+    ["Bandage"] = "Bandage",
+    ["Tape"] = "Tape",
+    ["Instructions"] = "Instructions",
+    ["ExtractionSpeedCandy"] = "Extraction Candy",
+    ["SkillCheckCandy"] = "SkillCheck Candy",
+    ["StaminaCandy"] = "Stamina Candy",
+    ["StealthCandy"] = "Stealth Candy",
+    ["SpeedCandy"] = "Speed Candy",
+    ["Gumball"] = "Gumball",
+    ["BonBon"] = "BonBon",
+    ["Chocolate"] = "Chocolate",
+    ["ChocolateBox"] = "Chocolate Box",
+    ["Pop"] = "Pop",
+    ["PopBottle"] = "Pop Bottle",
+    ["JumperCable"] = "Jumper Cable",
+    ["Stopwatch"] = "Stopwatch",
+    ["ChristmasCookie"] = "Christmas Cookie",
+    ["DandyEasterEggs"] = "Dandy Easter Eggs",
+    ["Pumpkin"] = "Pumpkins",
+    ["FakeCapsule"] = "Fake Capsule",
+    ["CollectablePiece"] = "Halloween Card",
+    ["TrickOrTreatDoor_Origin"] = "Halloween Door"
+}
+
+local activeItems = {}
+local itemEspEnabled = false
+local isItemLoopActive = false
+local maxItemDistance = 150
+
+VisualTab:Toggle({
+    Title = "Item + Other ESP",
+    Desc = "See useful items and other stuff such as research capsules, Halloween doors, etc",
+    Value = false,
+    Callback = function(toggledState)
+        itemEspEnabled = toggledState
+        
+        local function createItemESP(targetModel, labelText)
+            if activeItems[targetModel] then return end
+            local modelRoot = targetModel:FindFirstChild("HumanoidRootPart") or targetModel.PrimaryPart or targetModel:FindFirstChildWhichIsA("BasePart")
+            if not modelRoot then return end
+            
+            local boxHighlight = Instance.new("Highlight")
+            boxHighlight.Adornee = targetModel
+            boxHighlight.FillTransparency = 1
+            boxHighlight.OutlineTransparency = 0
+            boxHighlight.OutlineColor = Color3.fromRGB(50, 255, 50) -- Neon Green outline for items
+            boxHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            boxHighlight.Parent = targetModel
+            
+            local nameBillboard = Instance.new("BillboardGui")
+            nameBillboard.Adornee = modelRoot
+            nameBillboard.Size = UDim2.new(0, 100, 0, 20)
+            nameBillboard.StudsOffset = Vector3.new(0, 2.8, 0)
+            nameBillboard.AlwaysOnTop = true
+            nameBillboard.Parent = targetModel
+            
+            local nameLabel = Instance.new("TextLabel")
+            nameLabel.Size = UDim2.new(1, 0, 1, 0)
+            nameLabel.BackgroundTransparency = 1
+            nameLabel.Text = labelText
+            nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            nameLabel.TextStrokeTransparency = 0.3
+            nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            nameLabel.Font = Enum.Font.FredokaOne
+            nameLabel.TextSize = 12
+            nameLabel.TextScaled = false
+            nameLabel.Parent = nameBillboard
+            
+            activeItems[targetModel] = {
+                highlight = boxHighlight,
+                billboard = nameBillboard,
+                root = modelRoot
+            }
+        end
+        
+        local function removeItemESP(targetModel)
+            if activeItems[targetModel] then
+                pcall(function()
+                    activeItems[targetModel].highlight:Destroy()
+                    activeItems[targetModel].billboard:Destroy()
+                end)
+                activeItems[targetModel] = nil
+            end
+        end
+        
+        local function clearAllItems()
+            for targetModel in pairs(activeItems) do
+                removeItemESP(targetModel)
+            end
+        end
+        
+        if toggledState then
+            if isItemLoopActive then return end
+            isItemLoopActive = true
+            task.spawn(function()
+                while itemEspEnabled do
+                    local playerRoot = LocalPlayer.Character and (LocalPlayer.Character:FindFirstChild("HumanoidRootPart") or LocalPlayer.Character.PrimaryPart)
+                    for _, gameObj in pairs(workspace:GetDescendants()) do
+                        if gameObj:IsA("Model") and itemTargets[gameObj.Name] then
+                            local modelRoot = gameObj:FindFirstChild("HumanoidRootPart") or gameObj.PrimaryPart or gameObj:FindFirstChildWhichIsA("BasePart")
+                            if modelRoot and playerRoot then
+                                local distanceToItem = (modelRoot.Position - playerRoot.Position).Magnitude
+                                if distanceToItem <= maxItemDistance then
+                                    if not activeItems[gameObj] then
+                                        createItemESP(gameObj, itemTargets[gameObj.Name])
+                                    end
+                                else
+                                    removeItemESP(gameObj)
+                                end
+                            end
+                        end
+                    end
+                    for targetModel in pairs(activeItems) do
+                        if not targetModel or not targetModel.Parent then
+                            removeItemESP(targetModel)
+                        end
+                    end
+                    task.wait(0.4)
+                end
+                clearAllItems()
+                isItemLoopActive = false
+            end)
+        else
+            itemEspEnabled = false
+            clearAllItems()
+            isItemLoopActive = false
+        end
+    end
+})
