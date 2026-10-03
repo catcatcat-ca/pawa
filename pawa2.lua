@@ -20,24 +20,23 @@ local Window = WindUI:CreateWindow({
             print("User profile clicked")
         end,
     },
-})
     OpenButton = {
-		Title = "Open Pawa",
-		CornerRadius = UDim.new(1, 0),
-		StrokeThickness = 2,
-		Enabled = true,
-		Draggable = true,
-		OnlyMobile = false,
-		Scale = 0.67,
-		Color = ColorSequence.new(
-			Color3.fromHex("#E1E6ED"),
-			Color3.fromHex("#BCC0C4")
-		),
-	},
-	Topbar = {
-		Height = 44,
-		ButtonsType = "Mac",
-	},    
+        Title = "Open Pawa",
+        CornerRadius = UDim.new(1, 0),
+        StrokeThickness = 2,
+        Enabled = true,
+        Draggable = true,
+        OnlyMobile = false,
+        Scale = 0.67,
+        Color = ColorSequence.new(
+            Color3.fromHex("#E1E6ED"),
+            Color3.fromHex("#BCC0C4")
+        ),
+    },
+    Topbar = {
+        Height = 44,
+        ButtonsType = "Mac",
+    },    
 })
 
 local MainTab = Window:Tab({
@@ -175,9 +174,6 @@ local Tab = Window:Tab({
     Icon = "pencil",
 })
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local function getPlayerList()
     local list = {}
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -283,5 +279,3 @@ Players.PlayerRemoving:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
-
-})
