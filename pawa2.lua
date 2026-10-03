@@ -41,7 +41,7 @@ local Window = WindUI:CreateWindow({
 
 local MainTab = Window:Tab({
     Title = "Main",
-    Icon = "lucide:home",
+    Icon = "home",
 })
 
 -- Noclip
@@ -84,14 +84,52 @@ MainTab:Toggle({
     end
 })
 
--- Autofarm
 MainTab:Toggle({
-    Title = "Autofarm",
-    Desc = "Enable autofarm by toggling this on.",
-    Value = false, 
+    Title = "Instant Skillcheck",
+    Desc = "Enable instant skillcheck by toggling this on.",
+    Value = false,
     Callback = function(state)
+        getgenv().scinstant = state
+
         if state then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
+            local event = game:GetService("ReplicatedStorage").Events.SkillcheckUpdate
+            local ogcb = getcallbackvalue(event, "OnClientInvoke")
+            local ts = game:GetService("TweenService")
+            local ti = TweenInfo.new(1.5, Enum.EasingStyle.Linear)
+
+            if ogcb then
+                local hook
+                hook = hookfunction(ogcb, function(...)
+                    if getgenv().scinstant then
+                        task.spawn(function()
+                            game:GetService("StarterGui").ScreenGui.Correct:Play()
+                            game:GetService("StarterGui").ScreenGui.GoldAreaHit:Play()
+                           
+                            local msg = game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.Menu.SkillCheckMessage
+                            msg.UIGradient.Enabled = false
+                            msg.Text = "Great Job!"
+                            msg.UIGradientWin.Enabled = true
+                            msg.Visible = true
+                           
+                            task.wait(1.5)
+                           
+                            local tween = ts:Create(msg, ti, {TextTransparency = 1})
+                            tween:Play()
+                            tween.Completed:Wait()
+                           
+                            msg.Visible = false
+                            msg.TextTransparency = 0
+                        end)
+                       
+                        return "supercomplete"
+                    end
+                   
+                    return hook(...)
+                end)
+                print("Instant Skillcheck hooked successfully")
+            else
+                warn("Failed to hook Skillcheck")
+            end
         end
     end
 })
@@ -279,3 +317,92 @@ Players.PlayerRemoving:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
+
+local MainTab = Window:Tab({
+    Title = "Visuals",
+    Icon = "eye",
+})
+
+Tab:Toggle({
+    Title = "Player ESP",
+    Desc = "See every player.",
+    Value = false,
+    Callback = function(state)
+        ESPEnabled = state
+        
+        local function createESP(player)
+            if active[player] or player == LocalPlayer then return end
+            local character = player.Character
+            if not character then return end
+            
+            local highlight = Instance.new("Highlight")
+            highlight.Adornee = character
+            highlight.FillTransparency = 1
+            highlight.OutlineTransparency = 0
+            highlight.OutlineColor = Color3.fromRGB(255, 50, 50)
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.Parent = character
+            
+            local root = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
+            if not root then return end
+            
+            local billboard = Instance.new("BillboardGui")
+            billboard.Adornee = root
+            billboard.Size = UDim2.new(0, 140, 0, 28)
+            billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = character
+            
+            local text = Instance.new("TextLabel")
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.BackgroundTransparency = 1
+            text.Text = player.DisplayName
+            text.TextColor3 = Color3.fromRGB(0, 0, 255)
+            text.TextStrokeTransparency = 0
+            text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            text.Font = Enum.Font.FredokaOne
+            text.TextScaled = true
+            text.Parent = billboard
+            
+            active[player] = {highlight = highlight, billboard = billboard, character = character}
+        end
+        
+        local function removeESP(player)
+            if active[player] then
+                if active[player].highlight then active[player].highlight:Destroy() end
+                if active[player].billboard then active[player].billboard:Destroy() end
+                active[player] = nil
+            end
+        end
+        
+        local function clearAll()
+            for player in pairs(active) do
+                removeESP(player)
+            end
+        end
+        
+        if state then
+            task.spawn(function()
+                while ESPEnabled do
+                    for _, player in pairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer and player.Character then
+                            if not active[player] or active[player].character ~= player.Character then
+                                removeESP(player)
+                                createESP(player)
+                            end
+                        end
+                    end
+                    
+                    for player in pairs(active) do
+                        if not player.Parent or not player.Character then
+                            removeESP(player)
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        else
+            clearAll()
+        end
+    end
+})
