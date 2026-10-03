@@ -12,7 +12,6 @@ local Window = WindUI:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Transparent = true,
     Theme = "Dark",
-    Style = "Mac",
     Resizable = true,
     User = {
         Enabled = true,
@@ -226,7 +225,7 @@ Tab:Button({
 
         if success then
             WindUI:Notify({
-                Title = "Success",
+                Title = "Success!",
                 Content = "Now showing as " .. target.DisplayName .. " (@" .. target.Name .. ")",
                 Duration = 4
             })
@@ -267,8 +266,4 @@ Players.PlayerRemoving:Connect(function()
     Dropdown:Refresh(getPlayerList())
 end)
 
-WindUI:Notify({
-    Title = "Loaded",
-    Content = "Select a player then click Apply Name",
-    Duration = 4
 })
