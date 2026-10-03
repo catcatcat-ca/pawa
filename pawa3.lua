@@ -41,7 +41,7 @@ local Window = WindUI:CreateWindow({
 
 local MainTab = Window:Tab({
     Title = "Main",
-    Icon = "home",
+    Icon = "house",
 })
 
 local Players = game:GetService("Players")
