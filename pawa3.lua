@@ -44,16 +44,31 @@ local MainTab = Window:Tab({
     Icon = "home",
 })
 
--- Noclip
-local noclipEnabled = false
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 local NoclipConnection = nil
+
+local function applyNoclip()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            for _, conn in ipairs(getconnections(part:GetPropertyChangedSignal("CanQuery"))) do conn:Disconnect() end
+            for _, conn in ipairs(getconnections(part:GetPropertyChangedSignal("CanCollide"))) do conn:Disconnect() end
+            for _, conn in ipairs(getconnections(part:GetPropertyChangedSignal("CanTouch"))) do conn:Disconnect() end
+            for _, conn in ipairs(getconnections(part.Changed)) do conn:Disconnect() end
+            part.CanCollide = false
+        end
+    end
+end
+
+-- Add the Toggle to the Tab
 MainTab:Toggle({
     Title = "Noclip",
-    Desc = "Grants access for you to noclip.",
-    Value = false,
-    Callback = function(state)
-        noclipEnabled = state
-        if state then
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            applyNoclip()
             if not NoclipConnection then
                 NoclipConnection = RunService.Stepped:Connect(function()
                     local character = LocalPlayer.Character
@@ -80,7 +95,7 @@ MainTab:Toggle({
                 end
             end
         end
-    end
+    end,
 })
 
 MainTab:Toggle({
