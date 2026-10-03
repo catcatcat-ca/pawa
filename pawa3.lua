@@ -334,7 +334,7 @@ VisualTab:Toggle({
             highlight.Adornee = character
             highlight.FillTransparency = 1
             highlight.OutlineTransparency = 0
-            highlight.OutlineColor = Color3.fromRGB(255, 50, 50)
+            highlight.OutlineColor = Color3.fromRGB(50, 50, 255)
             highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             highlight.Parent = character
             
@@ -349,7 +349,7 @@ VisualTab:Toggle({
             text.Size = UDim2.new(1, 0, 1, 0)
             text.BackgroundTransparency = 1
             text.Text = player.DisplayName
-            text.TextColor3 = Color3.fromRGB(0, 0, 255)
+            text.TextColor3 = Color3.fromRGB(255, 255, 255)
             text.TextStrokeTransparency = 0.3
             text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             text.Font = Enum.Font.FredokaOne
