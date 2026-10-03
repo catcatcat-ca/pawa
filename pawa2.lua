@@ -323,9 +323,18 @@ local VisualTab = Window:Tab({
     Icon = "eye",
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local active = {}
+local ESPEnabled = false
+local loopRunning = false
+local MaxDistance = 120 -- only show players within this range
+
 VisualTab:Toggle({
     Title = "Player ESP",
-    Desc = "See every player.",
+    Desc = "See other players, doesn't work in solo runs.",
     Value = false,
     Callback = function(state)
         ESPEnabled = state
@@ -335,6 +344,9 @@ VisualTab:Toggle({
             local character = player.Character
             if not character then return end
             
+            local root = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
+            if not root then return end
+            
             local highlight = Instance.new("Highlight")
             highlight.Adornee = character
             highlight.FillTransparency = 1
@@ -343,13 +355,10 @@ VisualTab:Toggle({
             highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             highlight.Parent = character
             
-            local root = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
-            if not root then return end
-            
             local billboard = Instance.new("BillboardGui")
             billboard.Adornee = root
-            billboard.Size = UDim2.new(0, 140, 0, 28)
-            billboard.StudsOffset = Vector3.new(0, 3.2, 0)
+            billboard.Size = UDim2.new(0, 100, 0, 20) -- much smaller
+            billboard.StudsOffset = Vector3.new(0, 2.8, 0)
             billboard.AlwaysOnTop = true
             billboard.Parent = character
             
@@ -358,19 +367,27 @@ VisualTab:Toggle({
             text.BackgroundTransparency = 1
             text.Text = player.DisplayName
             text.TextColor3 = Color3.fromRGB(0, 0, 255)
-            text.TextStrokeTransparency = 0
+            text.TextStrokeTransparency = 0.3
             text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
             text.Font = Enum.Font.FredokaOne
-            text.TextScaled = true
+            text.TextSize = 12
+            text.TextScaled = false
             text.Parent = billboard
             
-            active[player] = {highlight = highlight, billboard = billboard, character = character}
+            active[player] = {
+                highlight = highlight,
+                billboard = billboard,
+                character = character,
+                root = root
+            }
         end
         
         local function removeESP(player)
             if active[player] then
-                if active[player].highlight then active[player].highlight:Destroy() end
-                if active[player].billboard then active[player].billboard:Destroy() end
+                pcall(function()
+                    active[player].highlight:Destroy()
+                    active[player].billboard:Destroy()
+                end)
                 active[player] = nil
             end
         end
@@ -382,27 +399,205 @@ VisualTab:Toggle({
         end
         
         if state then
+            if loopRunning then return end
+            loopRunning = true
+            
             task.spawn(function()
                 while ESPEnabled do
-                    for _, player in pairs(Players:GetPlayers()) do
-                        if player ~= LocalPlayer and player.Character then
-                            if not active[player] or active[player].character ~= player.Character then
-                                removeESP(player)
-                                createESP(player)
+                    local myRoot = LocalPlayer.Character and (LocalPlayer.Character:FindFirstChild("HumanoidRootPart") or LocalPlayer.Character.PrimaryPart)
+                    
+                    for _, player in ipairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer and player.Character and player.Character.Parent then
+                            local root = player.Character:FindFirstChild("HumanoidRootPart") or player.Character.PrimaryPart
+                            
+                            if root and myRoot then
+                                local dist = (root.Position - myRoot.Position).Magnitude
+                                
+                                if dist <= MaxDistance then
+                                    if not active[player] or active[player].character ~= player.Character then
+                                        removeESP(player)
+                                        createESP(player)
+                                    end
+                                else
+                                    removeESP(player)
+                                end
                             end
                         end
                     end
                     
                     for player in pairs(active) do
-                        if not player.Parent or not player.Character then
+                        if not player.Parent or not player.Character or not player.Character.Parent then
                             removeESP(player)
                         end
                     end
-                    task.wait(0.5)
+                    
+                    task.wait(0.35)
                 end
+                
+                clearAll()
+                loopRunning = false
             end)
         else
+            ESPEnabled = false
             clearAll()
+            loopRunning = false
+        end
+    end
+})
+
+local targets = {
+	["YattaMonster"] = "Twisted Yatta",
+	["BoxtenMonster"] = "Twisted Boxten",
+	["ShellyMonster"] = "Twisted Shelly",
+	["DandyMonster"] = "Twisted Dandy",
+	["DyleMonster"] = "Twisted Dyle",
+	["PoppyMonster"] = "Twisted Poppy",
+	["SquirmMonster"] = "Twisted Squirm",
+	["TishaMonster"] = "Twisted Tisha",
+	["ShrimpoMonster"] = "Twisted Shrimpo",
+	["ScrapsMonster"] = "Twisted Scraps",
+	["GoobMonster"] = "Twisted Goob",
+	["VeeMonster"] = "Twisted Vee",
+	["SproutMonster"] = "Twisted Sprout",
+	["CosmoMonster"] = "Twisted Cosmo",
+	["AstroMonster"] = "Twisted Astro",
+	["PebbleMonster"] = "Twisted Pebble",
+	["BlotMonster"] = "Twisted Blot",
+	["LooeyMonster"] = "Twisted Looey",
+	["ToodlesMonster"] = "Twisted Toodles",
+	["FlutterMonster"] = "Twisted Flutter",
+	["GlistenMonster"] = "Twisted Glisten",
+	["FinnMonster"] = "Twisted Finn",
+	["ConnieMonster"] = "Twisted Connie",
+	["RazzleAndDazzleMonster"] = "Twisted Razzle and Dazzle",
+	["RodgerMonster"] = "Twisted Rodger",
+	["TeaganMonster"] = "Twisted Teagan",
+	["BrushaMonster"] = "Twisted Brusha",
+	["BrightneyMonster"] = "Twisted Brightney",
+	["EggsonMonster"] = "Twisted Eggson",
+	["RudieMonster"] = "Twisted Rudie",
+	["RibeccaMonster"] = "Twisted Ribecca",
+	["GigiMonster"] = "Twisted Gigi",
+	["GingerMonster"] = "Twisted Ginger",
+	["FlyteMonster"] = "Twisted Flyte",
+	["SoulvesterMonster"] = "Twisted Soulvester",
+	["CoalMonster"] = "Twisted Coal",
+	["CocoaMonster"] = "Twisted Cocoa",
+	["BassieMonster"] = "Twisted Bassie",
+	["BobetteMonster"] = "Twisted Bobette",
+	["GourdyMonster"] = "Twisted Gourdy"
+}
+
+local active = {}
+local ESPEnabled = false
+local loopRunning = false
+local MaxDistance = 150
+
+MainTab:Toggle({
+    Title = "Twisted ESP",
+    Desc = "See twisteds in your run.",
+    Value = false,
+    Callback = function(state)
+        ESPEnabled = state
+        
+        local function createESP(model, displayName)
+            if active[model] then return end
+            
+            local root = model:FindFirstChild("HumanoidRootPart") or model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+            if not root then return end
+            
+            local highlight = Instance.new("Highlight")
+            highlight.Adornee = model
+            highlight.FillTransparency = 1
+            highlight.OutlineTransparency = 0
+            highlight.OutlineColor = Color3.fromRGB(255, 50, 50)
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.Parent = model
+            
+            local billboard = Instance.new("BillboardGui")
+            billboard.Adornee = root
+            billboard.Size = UDim2.new(0, 100, 0, 20)
+            billboard.StudsOffset = Vector3.new(0, 2.8, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = model
+            
+            local text = Instance.new("TextLabel")
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.BackgroundTransparency = 1
+            text.Text = displayName
+            text.TextColor3 = Color3.fromRGB(255, 255, 255)
+            text.TextStrokeTransparency = 0.3
+            text.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            text.Font = Enum.Font.FredokaOne
+            text.TextSize = 12
+            text.TextScaled = false
+            text.Parent = billboard
+            
+            active[model] = {
+                highlight = highlight,
+                billboard = billboard,
+                root = root
+            }
+        end
+        
+        local function removeESP(model)
+            if active[model] then
+                pcall(function()
+                    active[model].highlight:Destroy()
+                    active[model].billboard:Destroy()
+                end)
+                active[model] = nil
+            end
+        end
+        
+        local function clearAll()
+            for model in pairs(active) do
+                removeESP(model)
+            end
+        end
+        
+        if state then
+            if loopRunning then return end
+            loopRunning = true
+            
+            task.spawn(function()
+                while ESPEnabled do
+                    local myRoot = game.Players.LocalPlayer.Character and (game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") or game.Players.LocalPlayer.Character.PrimaryPart)
+                    
+                    for _, obj in pairs(workspace:GetDescendants()) do
+                        if obj:IsA("Model") and targets[obj.Name] then
+                            local root = obj:FindFirstChild("HumanoidRootPart") or obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                            
+                            if root and myRoot then
+                                local dist = (root.Position - myRoot.Position).Magnitude
+                                
+                                if dist <= MaxDistance then
+                                    if not active[obj] then
+                                        createESP(obj, targets[obj.Name])
+                                    end
+                                else
+                                    removeESP(obj)
+                                end
+                            end
+                        end
+                    end
+                    
+                    for model in pairs(active) do
+                        if not model or not model.Parent then
+                            removeESP(model)
+                        end
+                    end
+                    
+                    task.wait(0.4)
+                end
+                
+                clearAll()
+                loopRunning = false
+            end)
+        else
+            ESPEnabled = false
+            clearAll()
+            loopRunning = false
         end
     end
 })
