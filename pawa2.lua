@@ -152,3 +152,123 @@ MainTab:Toggle({
         end
     end,
 })
+
+local Tab = Window:Tab({
+    Title = "Name Spoofer",
+    Icon = "pencil",
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function getPlayerList()
+    local list = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            table.insert(list, plr.Name)
+        end
+    end
+    return list
+end
+
+local selectedPlayer = nil
+
+local Dropdown = Tab:Dropdown({
+    Title = "Select Player",
+    Desc = "Choose whose name you want to copy",
+    Values = getPlayerList(),
+    Multi = false,
+    AllowNone = true,
+    Callback = function(Value)
+        selectedPlayer = Value
+    end
+})
+
+Tab:Button({
+    Title = "Refresh Player List",
+    Callback = function()
+        Dropdown:Refresh(getPlayerList())
+        WindUI:Notify({
+            Title = "Refreshed",
+            Content = "Player list updated",
+            Duration = 2
+        })
+    end
+})
+
+Tab:Button({
+    Title = "Apply Name",
+    Callback = function()
+        if not selectedPlayer then
+            WindUI:Notify({
+                Title = "Error",
+                Content = "Please select a player first!",
+                Duration = 3
+            })
+            return
+        end
+
+        local target = Players:FindFirstChild(selectedPlayer)
+        if not target then
+            WindUI:Notify({
+                Title = "Error",
+                Content = "Player not found anymore",
+                Duration = 3
+            })
+            return
+        end
+
+        local success, err = pcall(function()
+            local p = workspace.Players[LocalPlayer.Name].HumanoidRootPart.NameTag.Frame
+            p.UserName.Text = target.Name
+            p.DisplayName.Text = target.DisplayName
+        end)
+
+        if success then
+            WindUI:Notify({
+                Title = "Success",
+                Content = "Now showing as " .. target.DisplayName .. " (@" .. target.Name .. ")",
+                Duration = 4
+            })
+        else
+            WindUI:Notify({
+                Title = "Failed",
+                Content = "Could not find NameTag. Make sure you're in the game.",
+                Duration = 4
+            })
+        end
+    end
+})
+
+Tab:Button({
+    Title = "Reset to Real Name",
+    Callback = function()
+        pcall(function()
+            local p = workspace.Players[LocalPlayer.Name].HumanoidRootPart.NameTag.Frame
+            p.UserName.Text = LocalPlayer.Name
+            p.DisplayName.Text = LocalPlayer.DisplayName
+        end)
+        WindUI:Notify({
+            Title = "Reset",
+            Content = "Name tag restored",
+            Duration = 2
+        })
+    end
+})
+
+-- Auto-refresh list when players join/leave
+Players.PlayerAdded:Connect(function()
+    task.wait(0.5)
+    Dropdown:Refresh(getPlayerList())
+end)
+
+Players.PlayerRemoving:Connect(function()
+    task.wait(0.5)
+    Dropdown:Refresh(getPlayerList())
+end)
+
+WindUI:Notify({
+    Title = "Loaded",
+    Content = "Select a player then click Apply Name",
+    Duration = 4
+})
