@@ -7,7 +7,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local Window = WindUI:CreateWindow({
     Title = "pawa",
-    Icon = "rbxassetid://81169894862344", 
+    Icon = "rbxthumb://type=Asset&id=81169894862344&w=150&h=150", 
     Author = "",
     Folder = "pawaui",
     Size = UDim2.fromOffset(580, 460),
