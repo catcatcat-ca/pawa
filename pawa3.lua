@@ -62,7 +62,6 @@ local function applyNoclip()
     end
 end
 
--- Add the Toggle to the Tab
 MainTab:Toggle({
     Title = "Noclip",
     Default = false,
@@ -211,6 +210,20 @@ MainTab:Toggle({
             Lighting.GlobalShadows = baseShadows
             Lighting.Ambient = baseAmbient
         end
+    end,
+})
+
+MainTab:Slider({
+    Title = "Hip Height",
+	Desc = "Changes your hipheight. (Use ingame, otherwise youll get banned)",
+    Step = 0.1,
+    Value = {
+        Min = 0,
+        Max = 50,
+        Default = 2,
+    },
+    Callback = function(value)
+        applyHipHeight(value)
     end,
 })
 
