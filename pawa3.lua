@@ -751,3 +751,147 @@ VisualTab:Toggle({
         end
     end
 })
+
+local AutomationTab = Window:Tab({
+    Title = "Automation",
+    Icon = "refresh-ccw",
+})
+
+local autoGetToElevatorEnabled = false
+
+AutomationTab:Toggle({
+    Title = "Auto GTE",
+    Desc = "Teleports you to the elevator when Panic Mode is active.",
+    Value = false,
+    Flag = "AutoGetToElevator",
+    Callback = function(v)
+        autoGetToElevatorEnabled = v
+    end
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if autoGetToElevatorEnabled then
+            pcall(function()
+                local infoFolder = Workspace:FindFirstChild("Info")
+                local panicValue = infoFolder and infoFolder:FindFirstChild("Panic")
+                local elevatorsFolder = Workspace:FindFirstChild("Elevators")
+                
+                if panicValue and panicValue.Value == true and elevatorsFolder and HumanoidRootPart then
+                    local elevator = elevatorsFolder:FindFirstChild("Elevator") or elevatorsFolder:FindFirstChildOfClass("Model")
+                    if elevator then
+                        local targetPart = elevator.PrimaryPart or elevator:FindFirstChild("Hitbox") or elevator:FindFirstChildWhichIsA("BasePart")
+                        if targetPart then
+                            HumanoidRootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+local autoCollectActive = false
+
+AutomationTab:Toggle({
+    Title = "Automatically collect research capsules",
+    Desc = "Automatically collects all Research Capsules in the game.",
+    Value = false,
+    Flag = "AutoCollectResearchCapsulesToggle",
+    Callback = function(v)
+        autoCollectActive = v
+        if autoCollectActive then
+            task.spawn(function()
+                if not Character or not HumanoidRootPart then return end
+                
+                while autoCollectActive do
+                    local capsules = {}
+                    for _, obj in ipairs(Workspace:GetDescendants()) do
+                        if obj.Name == "ResearchCapsule" then
+                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart", true)
+                            local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                            if targetPart and prompt then
+                                table.insert(capsules, {Part = targetPart, Prompt = prompt})
+                            end
+                        end
+                    end
+
+                    if #capsules > 0 then
+                        local originalPosition = HumanoidRootPart.CFrame
+                        local collectedAny = false
+
+                        for _, cap in ipairs(capsules) do
+                            if not autoCollectActive then break end
+                            collectedAny = true
+                            HumanoidRootPart.CFrame = cap.Part.CFrame + Vector3.new(0, 3, 0)
+                            task.wait(0.3)
+                            pcall(function()
+                                fireproximityprompt(cap.Prompt)
+                            end)
+                            task.wait(0.4)
+                        end
+
+                        if collectedAny and HumanoidRootPart then
+                            HumanoidRootPart.CFrame = originalPosition
+                        end
+                    end
+                    
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+local autoCollectEventActive = false
+
+AutomationTab:Toggle({
+    Title = "Automatically collect event currency",
+    Desc = "Automatically collects all the Pumpkins in the game.",
+    Value = false,
+    Flag = "AutoCollectEventCurrencyToggle",
+    Callback = function(v)
+        autoCollectEventActive = v
+        if autoCollectEventActive then
+            task.spawn(function()
+                if not Character or not HumanoidRootPart then return end
+                
+                while autoCollectEventActive do
+                    local eventItems = {}
+                    for _, obj in ipairs(Workspace:GetDescendants()) do
+                        if obj.Name == "Pumpkin" then
+                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart", true)
+                            local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                            if targetPart and prompt then
+                                table.insert(eventItems, {Part = targetPart, Prompt = prompt})
+                            end
+                        end
+                    end
+
+                    if #eventItems > 0 then
+                        local originalPosition = HumanoidRootPart.CFrame
+                        local collectedAny = false
+
+                        for _, item in ipairs(eventItems) do
+                            if not autoCollectEventActive then break end
+                            collectedAny = true
+                            HumanoidRootPart.CFrame = item.Part.CFrame + Vector3.new(0, 3, 0)
+                            task.wait(0.3)
+                            pcall(function()
+                                fireproximityprompt(item.Prompt)
+                            end)
+                            task.wait(0.4)
+                        end
+
+                        if collectedAny and HumanoidRootPart then
+                            HumanoidRootPart.CFrame = originalPosition
+                        end
+                    end
+                    
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
