@@ -1,5 +1,4 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
@@ -44,9 +43,6 @@ local MainTab = Window:Tab({
     Icon = "house",
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
 local NoclipConnection = nil
 
 local function applyNoclip()
@@ -61,6 +57,25 @@ local function applyNoclip()
         end
     end
 end
+
+-- Fixed HipHeight function
+local currentHipHeight = 2
+local function applyHipHeight(value)
+    currentHipHeight = value
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.HipHeight = value
+        end
+    end
+end
+
+-- Re-apply hip height on respawn
+LocalPlayer.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    applyHipHeight(currentHipHeight)
+end)
 
 MainTab:Toggle({
     Title = "Noclip",
@@ -194,6 +209,7 @@ local baseBrightness = Lighting.Brightness
 local baseClockTime = Lighting.ClockTime
 local baseShadows = Lighting.GlobalShadows
 local baseAmbient = Lighting.Ambient
+
 MainTab:Toggle({
     Title = "Fullbright",
     Desc = "Lights up your surroundings.",
@@ -327,6 +343,7 @@ Players.PlayerAdded:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
+
 Players.PlayerRemoving:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
@@ -667,7 +684,7 @@ VisualTab:Toggle({
             boxHighlight.Adornee = targetModel
             boxHighlight.FillTransparency = 1
             boxHighlight.OutlineTransparency = 0
-            boxHighlight.OutlineColor = Color3.fromRGB(50, 255, 50) -- Neon Green outline for items
+            boxHighlight.OutlineColor = Color3.fromRGB(50, 255, 50)
             boxHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             boxHighlight.Parent = targetModel
             
@@ -753,145 +770,15 @@ VisualTab:Toggle({
 })
 
 local AutomationTab = Window:Tab({
-    Title = "Automation",
-    Icon = "refresh-ccw",
+    Title = "Other Scripts",
+    Icon = "settings",
 })
 
-local autoGetToElevatorEnabled = false
-
 AutomationTab:Toggle({
-    Title = "Auto GTE",
-    Desc = "Teleports you to the elevator when Panic Mode is active.",
+    Title = "Load VoidExtractor",
+    Desc = "Load VoidExtractor for autofarming.",
     Value = false,
-    Flag = "AutoGetToElevator",
-    Callback = function(v)
-        autoGetToElevatorEnabled = v
-    end
-})
-
-task.spawn(function()
-    while true do
-        task.wait(0.1)
-        if autoGetToElevatorEnabled then
-            pcall(function()
-                local infoFolder = Workspace:FindFirstChild("Info")
-                local panicValue = infoFolder and infoFolder:FindFirstChild("Panic")
-                local elevatorsFolder = Workspace:FindFirstChild("Elevators")
-                
-                if panicValue and panicValue.Value == true and elevatorsFolder and HumanoidRootPart then
-                    local elevator = elevatorsFolder:FindFirstChild("Elevator") or elevatorsFolder:FindFirstChildOfClass("Model")
-                    if elevator then
-                        local targetPart = elevator.PrimaryPart or elevator:FindFirstChild("Hitbox") or elevator:FindFirstChildWhichIsA("BasePart")
-                        if targetPart then
-                            HumanoidRootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
-                        end
-                    end
-                end
-            end)
-        end
-    end
-end)
-
-local autoCollectActive = false
-
-AutomationTab:Toggle({
-    Title = "Automatically collect research capsules",
-    Desc = "Automatically collects all Research Capsules in the game.",
-    Value = false,
-    Flag = "AutoCollectResearchCapsulesToggle",
-    Callback = function(v)
-        autoCollectActive = v
-        if autoCollectActive then
-            task.spawn(function()
-                if not Character or not HumanoidRootPart then return end
-                
-                while autoCollectActive do
-                    local capsules = {}
-                    for _, obj in ipairs(Workspace:GetDescendants()) do
-                        if obj.Name == "ResearchCapsule" then
-                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart", true)
-                            local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                            if targetPart and prompt then
-                                table.insert(capsules, {Part = targetPart, Prompt = prompt})
-                            end
-                        end
-                    end
-
-                    if #capsules > 0 then
-                        local originalPosition = HumanoidRootPart.CFrame
-                        local collectedAny = false
-
-                        for _, cap in ipairs(capsules) do
-                            if not autoCollectActive then break end
-                            collectedAny = true
-                            HumanoidRootPart.CFrame = cap.Part.CFrame + Vector3.new(0, 3, 0)
-                            task.wait(0.3)
-                            pcall(function()
-                                fireproximityprompt(cap.Prompt)
-                            end)
-                            task.wait(0.4)
-                        end
-
-                        if collectedAny and HumanoidRootPart then
-                            HumanoidRootPart.CFrame = originalPosition
-                        end
-                    end
-                    
-                    task.wait(1)
-                end
-            end)
-        end
-    end
-})
-
-local autoCollectEventActive = false
-
-AutomationTab:Toggle({
-    Title = "Automatically collect event currency",
-    Desc = "Automatically collects all the Pumpkins in the game.",
-    Value = false,
-    Flag = "AutoCollectEventCurrencyToggle",
-    Callback = function(v)
-        autoCollectEventActive = v
-        if autoCollectEventActive then
-            task.spawn(function()
-                if not Character or not HumanoidRootPart then return end
-                
-                while autoCollectEventActive do
-                    local eventItems = {}
-                    for _, obj in ipairs(Workspace:GetDescendants()) do
-                        if obj.Name == "Pumpkin" then
-                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart", true)
-                            local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                            if targetPart and prompt then
-                                table.insert(eventItems, {Part = targetPart, Prompt = prompt})
-                            end
-                        end
-                    end
-
-                    if #eventItems > 0 then
-                        local originalPosition = HumanoidRootPart.CFrame
-                        local collectedAny = false
-
-                        for _, item in ipairs(eventItems) do
-                            if not autoCollectEventActive then break end
-                            collectedAny = true
-                            HumanoidRootPart.CFrame = item.Part.CFrame + Vector3.new(0, 3, 0)
-                            task.wait(0.3)
-                            pcall(function()
-                                fireproximityprompt(item.Prompt)
-                            end)
-                            task.wait(0.4)
-                        end
-
-                        if collectedAny and HumanoidRootPart then
-                            HumanoidRootPart.CFrame = originalPosition
-                        end
-                    end
-                    
-                    task.wait(1)
-                end
-            end)
-        end
+    Callback = function(toggledState)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
     end
 })
