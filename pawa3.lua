@@ -231,7 +231,7 @@ MainTab:Toggle({
 
 MainTab:Slider({
     Title = "Hip Height",
-	Desc = "Changes your hipheight. (Use ingame, otherwise youll get banned)",
+	Desc = "Changes your hipheight. (Doesnt really work ingame.)",
     Step = 0.1,
     Value = {
         Min = 0,
@@ -774,11 +774,31 @@ local AutomationTab = Window:Tab({
     Icon = "settings",
 })
 
-AutomationTab:Toggle({
+AutomationTab:Button({
     Title = "Load VoidExtractor",
-    Desc = "Load VoidExtractor for autofarming.",
+    Desc = "Loads VoidExtractor for autofarming.",
     Value = false,
     Callback = function(toggledState)
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
+    end
+})
+
+AutomationTab:Button({
+    Title = "Load BSGUI",
+    Desc = "Loads Boxten Sex Gui.",
+    Color = Color3.fromHex("#805d8f")
+    Value = false,
+    Callback = function(toggledState)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua""))()
+    end
+})
+
+AutomationTab:Button({
+    Title = "Load Riddance Hub",
+    Desc = "Loads Riddance Hub.",
+    Color = Color3.fromHex("#19191a")
+    Value = false,
+    Callback = function(toggledState)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua%"))()
     end
 })
