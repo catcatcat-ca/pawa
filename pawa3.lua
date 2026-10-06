@@ -3,7 +3,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
-
 local Window = WindUI:CreateWindow({
     Title = "pawa",
     Icon = "rbxthumb://type=Asset&id=81169894862344&w=150&h=150", 
@@ -37,14 +36,11 @@ local Window = WindUI:CreateWindow({
         ButtonsType = "Mac",
     },    
 })
-
 local MainTab = Window:Tab({
     Title = "Main",
     Icon = "house",
 })
-
 local NoclipConnection = nil
-
 local function applyNoclip()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     for _, part in ipairs(character:GetDescendants()) do
@@ -57,7 +53,6 @@ local function applyNoclip()
         end
     end
 end
-
 -- Fixed HipHeight function
 local currentHipHeight = 2
 local function applyHipHeight(value)
@@ -70,13 +65,11 @@ local function applyHipHeight(value)
         end
     end
 end
-
 -- Re-apply hip height on respawn
 LocalPlayer.CharacterAdded:Connect(function(char)
     task.wait(0.5)
     applyHipHeight(currentHipHeight)
 end)
-
 MainTab:Toggle({
     Title = "Noclip",
     Default = false,
@@ -111,7 +104,6 @@ MainTab:Toggle({
         end
     end,
 })
-
 MainTab:Toggle({
     Title = "Instant Skillcheck",
     Desc = "Enable instant skillcheck by toggling this on.",
@@ -159,7 +151,6 @@ MainTab:Toggle({
         end
     end
 })
-
 MainTab:Button({
     Title = "Ability range",
     Desc = "Increases your ability range.",
@@ -189,7 +180,6 @@ MainTab:Button({
         end
     end
 })
-
 MainTab:Button({
     Title = "Streamer Mode",
     Desc = "Useful for making videos!",
@@ -204,12 +194,10 @@ MainTab:Button({
         end
     end
 })
-
 local baseBrightness = Lighting.Brightness
 local baseClockTime = Lighting.ClockTime
 local baseShadows = Lighting.GlobalShadows
 local baseAmbient = Lighting.Ambient
-
 MainTab:Toggle({
     Title = "Fullbright",
     Desc = "Lights up your surroundings.",
@@ -228,7 +216,6 @@ MainTab:Toggle({
         end
     end,
 })
-
 MainTab:Slider({
     Title = "Hip Height",
 	Desc = "Changes your hipheight. (Doesnt really work ingame.)",
@@ -242,12 +229,10 @@ MainTab:Slider({
         applyHipHeight(value)
     end,
 })
-
 local Tab = Window:Tab({
     Title = "Name Spoofer",
     Icon = "pencil",
 })
-
 local function getPlayerList()
     local list = {}
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -257,7 +242,6 @@ local function getPlayerList()
     end
     return list
 end
-
 local selectedPlayer = nil
 local Dropdown = Tab:Dropdown({
     Title = "Select Player",
@@ -269,7 +253,6 @@ local Dropdown = Tab:Dropdown({
         selectedPlayer = Value
     end
 })
-
 Tab:Button({
     Title = "Refresh Player List",
     Callback = function()
@@ -281,7 +264,6 @@ Tab:Button({
         })
     end
 })
-
 Tab:Button({
     Title = "Apply Name",
     Callback = function()
@@ -322,7 +304,6 @@ Tab:Button({
         end
     end
 })
-
 Tab:Button({
     Title = "Reset to Real Name",
     Callback = function()
@@ -338,28 +319,23 @@ Tab:Button({
         })
     end
 })
-
 Players.PlayerAdded:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
-
 Players.PlayerRemoving:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
-
 local VisualTab = Window:Tab({
     Title = "Visuals",
     Icon = "eye",
 })
-
 -- ==================== PLAYER ESP ====================
 local playerActive = {}
 local playerESPEnabled = false
 local playerLoopRunning = false
 local PlayerMaxDistance = 120
-
 VisualTab:Toggle({
     Title = "Player ESP",
     Desc = "See other players, doesn't work in solo runs.",
@@ -472,7 +448,6 @@ VisualTab:Toggle({
         end
     end
 })
-
 -- ==================== TWISTED ESP ====================
 local targets = {
 	["YattaMonster"] = "Twisted Yatta",
@@ -516,12 +491,10 @@ local targets = {
 	["BobetteMonster"] = "Twisted Bobette",
 	["GourdyMonster"] = "Twisted Gourdy"
 }
-
 local twistedActive = {}
 local twistedESPEnabled = false
 local twistedLoopRunning = false
 local TwistedMaxDistance = 150
-
 VisualTab:Toggle({
     Title = "Twisted ESP",
     Desc = "See twisteds in your run.",
@@ -630,7 +603,6 @@ VisualTab:Toggle({
         end
     end
 })
-
 local itemTargets = {
     ["AirHorn"] = "Air Horn",
     ["SmokeBomb"] = "Smoke Bomb",
@@ -662,12 +634,10 @@ local itemTargets = {
     ["CollectablePiece"] = "Halloween Card",
     ["TrickOrTreatDoor_Origin"] = "Halloween Door"
 }
-
 local activeItems = {}
 local itemEspEnabled = false
 local isItemLoopActive = false
 local maxItemDistance = 150
-
 VisualTab:Toggle({
     Title = "Item + Other ESP",
     Desc = "See useful items and other stuff such as research capsules, Halloween doors, etc",
@@ -768,37 +738,30 @@ VisualTab:Toggle({
         end
     end
 })
-
 local AutomationTab = Window:Tab({
     Title = "Other Scripts",
     Icon = "settings",
 })
-
 AutomationTab:Button({
     Title = "Load VoidExtractor",
     Desc = "Loads VoidExtractor for autofarming.",
-    Value = false,
-    Callback = function(toggledState)
+    Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
     end
 })
-
 AutomationTab:Button({
     Title = "Load BSGUI",
     Desc = "Loads Boxten Sex Gui.",
-    Color = Color3.fromHex("#805d8f")
-    Value = false,
-    Callback = function(toggledState)
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua""))()
+    Color = Color3.fromHex("#805d8f"),
+    Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))()
     end
 })
-
 AutomationTab:Button({
     Title = "Load Riddance Hub",
     Desc = "Loads Riddance Hub.",
-    Color = Color3.fromHex("#19191a")
-    Value = false,
-    Callback = function(toggledState)
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua%"))()
+    Color = Color3.fromHex("#19191a"),
+    Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
     end
 })
