@@ -754,7 +754,7 @@ AutomationTab:Button({
     Desc = "Loads Boxten Sex Gui.",
     Color = Color3.fromHex("#805d8f"),
     Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))("Boxten Sex GUI")
     end
 })
 AutomationTab:Button({
