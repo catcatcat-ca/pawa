@@ -229,6 +229,15 @@ MainTab:Slider({
         applyHipHeight(value)
     end,
 })
+
+MainTab:Toggle({
+    Title = "Instant Barnaby Minigame",
+    Desc = "Enable this to activate the minigame!",
+    Value = false,
+    Callback = function(state)
+     loadstring(game:HttpGet("https://raw.githubusercontent.com/christmas-cookie/extensions/refs/heads/main/arcademachine", true))()
+})
+
 local Tab = Window:Tab({
     Title = "Name Spoofer",
     Icon = "pencil",
@@ -738,10 +747,12 @@ VisualTab:Toggle({
         end
     end
 })
+
 local AutomationTab = Window:Tab({
     Title = "Other Scripts",
     Icon = "settings",
 })
+
 AutomationTab:Button({
     Title = "Load VoidExtractor",
     Desc = "Loads VoidExtractor for autofarming.",
@@ -763,5 +774,19 @@ AutomationTab:Button({
     Color = Color3.fromHex("#19191a"),
     Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
+    end
+})
+
+local PlayerTab = Window:Tab({
+    Title = "Player",
+    Icon = "user",
+})
+
+Player:Button({
+    Title = "Infinite Stamina",
+    Desc = "Loads Riddance Hub.",
+    Color = Color3.fromHex("#19191a"),
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/abelsrighthand/AbstractLite/refs/heads/main/abstractlite(infstam).lua"))()
     end
 })
