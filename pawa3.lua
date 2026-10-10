@@ -340,7 +340,7 @@ local VisualTab = Window:Tab({
     Title = "Visuals",
     Icon = "eye",
 })
--- ==================== PLAYER ESP ====================
+
 local playerActive = {}
 local playerESPEnabled = false
 local playerLoopRunning = false
@@ -457,7 +457,7 @@ VisualTab:Toggle({
         end
     end
 })
--- ==================== TWISTED ESP ====================
+
 local targets = {
 	["YattaMonster"] = "Twisted Yatta",
 	["BoxtenMonster"] = "Twisted Boxten",
@@ -782,9 +782,10 @@ local PlayerTab = Window:Tab({
     Icon = "user",
 })
 
+-- thanks abstractlite !!
 Player:Button({
     Title = "Infinite Stamina",
-    Desc = "Loads Riddance Hub.",
+    Desc = "Gives you infinite stamina.",
     Color = Color3.fromHex("#19191a"),
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/abelsrighthand/AbstractLite/refs/heads/main/abstractlite(infstam).lua"))()
