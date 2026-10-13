@@ -235,7 +235,10 @@ MainTab:Toggle({
     Desc = "Enable this to activate the minigame!",
     Value = false,
     Callback = function(state)
-     loadstring(game:HttpGet("https://raw.githubusercontent.com/christmas-cookie/extensions/refs/heads/main/arcademachine", true))()
+        if state then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/christmas-cookie/extensions/refs/heads/main/arcademachine", true))()
+        end
+    end
 })
 
 local Tab = Window:Tab({
@@ -783,7 +786,7 @@ local PlayerTab = Window:Tab({
 })
 
 -- thanks abstractlite !!
-Player:Button({
+PlayerTab:Button({
     Title = "Infinite Stamina",
     Desc = "Gives you infinite stamina.",
     Color = Color3.fromHex("#19191a"),
