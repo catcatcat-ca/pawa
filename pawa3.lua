@@ -794,3 +794,39 @@ PlayerTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/abelsrighthand/AbstractLite/refs/heads/main/abstractlite(infstam).lua"))()
     end
 })
+
+PlayerTab:Button({
+    Title = "Auto Struggle",
+    Desc = "Automatically struggles when squirm catches you.",
+    Color = Color3.fromHex("#19191a"),
+    Callback = function()
+local TwistedSquirmGrabremote = replicated:WaitForChild("Events"):WaitForChild("TwistedSquirmGrab")
+
+local autostrugglerunning = false
+local squirmdir = "left"
+
+TwistedSquirmGrabremote.OnClientEvent:Connect(function(action)
+	if action == "GrabStart" then
+		autostrugglerunning = true
+	elseif action == "GrabEnd" then
+		autostrugglerunning = false
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(0.06)
+		if autostrugglerunning then
+			if squirmdir == "left" then
+				TwistedSquirmGrabremote:FireServer("Struggle", "left")
+				squirmdir = "right"
+			else
+				TwistedSquirmGrabremote:FireServer("Struggle", "right")
+				squirmdir = "left"
+			end
+		end
+	end
+end)
+
+})
+
