@@ -2,7 +2,9 @@ local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/rel
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
+
 local Window = WindUI:CreateWindow({
     Title = "pawa",
     Icon = "rbxthumb://type=Asset&id=81169894862344&w=150&h=150", 
@@ -36,10 +38,12 @@ local Window = WindUI:CreateWindow({
         ButtonsType = "Mac",
     },    
 })
+
 local MainTab = Window:Tab({
     Title = "Main",
     Icon = "house",
 })
+
 local NoclipConnection = nil
 local function applyNoclip()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -53,6 +57,7 @@ local function applyNoclip()
         end
     end
 end
+
 -- Fixed HipHeight function
 local currentHipHeight = 2
 local function applyHipHeight(value)
@@ -65,11 +70,13 @@ local function applyHipHeight(value)
         end
     end
 end
+
 -- Re-apply hip height on respawn
 LocalPlayer.CharacterAdded:Connect(function(char)
     task.wait(0.5)
     applyHipHeight(currentHipHeight)
 end)
+
 MainTab:Toggle({
     Title = "Noclip",
     Default = false,
@@ -104,6 +111,7 @@ MainTab:Toggle({
         end
     end,
 })
+
 MainTab:Toggle({
     Title = "Instant Skillcheck",
     Desc = "Enable instant skillcheck by toggling this on.",
@@ -111,7 +119,7 @@ MainTab:Toggle({
     Callback = function(state)
         getgenv().scinstant = state
         if state then
-            local event = game:GetService("ReplicatedStorage").Events.SkillcheckUpdate
+            local event = ReplicatedStorage.Events.SkillcheckUpdate
             local ogcb = getcallbackvalue(event, "OnClientInvoke")
             local ts = game:GetService("TweenService")
             local ti = TweenInfo.new(1.5, Enum.EasingStyle.Linear)
@@ -123,7 +131,7 @@ MainTab:Toggle({
                             game:GetService("StarterGui").ScreenGui.Correct:Play()
                             game:GetService("StarterGui").ScreenGui.GoldAreaHit:Play()
                            
-                            local msg = game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.Menu.SkillCheckMessage
+                            local msg = LocalPlayer.PlayerGui.ScreenGui.Menu.SkillCheckMessage
                             msg.UIGradient.Enabled = false
                             msg.Text = "Great Job!"
                             msg.UIGradientWin.Enabled = true
@@ -151,6 +159,7 @@ MainTab:Toggle({
         end
     end
 })
+
 MainTab:Button({
     Title = "Ability range",
     Desc = "Increases your ability range.",
@@ -180,6 +189,7 @@ MainTab:Button({
         end
     end
 })
+
 MainTab:Button({
     Title = "Streamer Mode",
     Desc = "Useful for making videos!",
@@ -194,6 +204,7 @@ MainTab:Button({
         end
     end
 })
+
 local baseBrightness = Lighting.Brightness
 local baseClockTime = Lighting.ClockTime
 local baseShadows = Lighting.GlobalShadows
@@ -216,9 +227,10 @@ MainTab:Toggle({
         end
     end,
 })
+
 MainTab:Slider({
     Title = "Hip Height",
-	Desc = "Changes your hipheight. (Doesnt really work ingame.)",
+    Desc = "Changes your hipheight. (Doesnt really work ingame.)",
     Step = 0.1,
     Value = {
         Min = 0,
@@ -245,6 +257,7 @@ local Tab = Window:Tab({
     Title = "Name Spoofer",
     Icon = "pencil",
 })
+
 local function getPlayerList()
     local list = {}
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -254,6 +267,7 @@ local function getPlayerList()
     end
     return list
 end
+
 local selectedPlayer = nil
 local Dropdown = Tab:Dropdown({
     Title = "Select Player",
@@ -265,6 +279,7 @@ local Dropdown = Tab:Dropdown({
         selectedPlayer = Value
     end
 })
+
 Tab:Button({
     Title = "Refresh Player List",
     Callback = function()
@@ -276,6 +291,7 @@ Tab:Button({
         })
     end
 })
+
 Tab:Button({
     Title = "Apply Name",
     Callback = function()
@@ -316,6 +332,7 @@ Tab:Button({
         end
     end
 })
+
 Tab:Button({
     Title = "Reset to Real Name",
     Callback = function()
@@ -331,14 +348,17 @@ Tab:Button({
         })
     end
 })
+
 Players.PlayerAdded:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
+
 Players.PlayerRemoving:Connect(function()
     task.wait(0.5)
     Dropdown:Refresh(getPlayerList())
 end)
+
 local VisualTab = Window:Tab({
     Title = "Visuals",
     Icon = "eye",
@@ -348,6 +368,7 @@ local playerActive = {}
 local playerESPEnabled = false
 local playerLoopRunning = false
 local PlayerMaxDistance = 120
+
 VisualTab:Toggle({
     Title = "Player ESP",
     Desc = "See other players, doesn't work in solo runs.",
@@ -462,51 +483,53 @@ VisualTab:Toggle({
 })
 
 local targets = {
-	["YattaMonster"] = "Twisted Yatta",
-	["BoxtenMonster"] = "Twisted Boxten",
-	["ShellyMonster"] = "Twisted Shelly",
-	["DandyMonster"] = "Twisted Dandy",
-	["DyleMonster"] = "Twisted Dyle",
-	["PoppyMonster"] = "Twisted Poppy",
-	["SquirmMonster"] = "Twisted Squirm",
-	["TishaMonster"] = "Twisted Tisha",
-	["ShrimpoMonster"] = "Twisted Shrimpo",
-	["ScrapsMonster"] = "Twisted Scraps",
-	["GoobMonster"] = "Twisted Goob",
-	["VeeMonster"] = "Twisted Vee",
-	["SproutMonster"] = "Twisted Sprout",
-	["CosmoMonster"] = "Twisted Cosmo",
-	["AstroMonster"] = "Twisted Astro",
-	["PebbleMonster"] = "Twisted Pebble",
-	["BlotMonster"] = "Twisted Blot",
-	["LooeyMonster"] = "Twisted Looey",
-	["ToodlesMonster"] = "Twisted Toodles",
-	["FlutterMonster"] = "Twisted Flutter",
-	["GlistenMonster"] = "Twisted Glisten",
-	["FinnMonster"] = "Twisted Finn",
-	["ConnieMonster"] = "Twisted Connie",
-	["RazzleAndDazzleMonster"] = "Twisted Razzle and Dazzle",
-	["RodgerMonster"] = "Twisted Rodger",
-	["TeaganMonster"] = "Twisted Teagan",
-	["BrushaMonster"] = "Twisted Brusha",
-	["BrightneyMonster"] = "Twisted Brightney",
-	["EggsonMonster"] = "Twisted Eggson",
-	["RudieMonster"] = "Twisted Rudie",
-	["RibeccaMonster"] = "Twisted Ribecca",
-	["GigiMonster"] = "Twisted Gigi",
-	["GingerMonster"] = "Twisted Ginger",
-	["FlyteMonster"] = "Twisted Flyte",
-	["SoulvesterMonster"] = "Twisted Soulvester",
-	["CoalMonster"] = "Twisted Coal",
-	["CocoaMonster"] = "Twisted Cocoa",
-	["BassieMonster"] = "Twisted Bassie",
-	["BobetteMonster"] = "Twisted Bobette",
-	["GourdyMonster"] = "Twisted Gourdy"
+    ["YattaMonster"] = "Twisted Yatta",
+    ["BoxtenMonster"] = "Twisted Boxten",
+    ["ShellyMonster"] = "Twisted Shelly",
+    ["DandyMonster"] = "Twisted Dandy",
+    ["DyleMonster"] = "Twisted Dyle",
+    ["PoppyMonster"] = "Twisted Poppy",
+    ["SquirmMonster"] = "Twisted Squirm",
+    ["TishaMonster"] = "Twisted Tisha",
+    ["ShrimpoMonster"] = "Twisted Shrimpo",
+    ["ScrapsMonster"] = "Twisted Scraps",
+    ["GoobMonster"] = "Twisted Goob",
+    ["VeeMonster"] = "Twisted Vee",
+    ["SproutMonster"] = "Twisted Sprout",
+    ["CosmoMonster"] = "Twisted Cosmo",
+    ["AstroMonster"] = "Twisted Astro",
+    ["PebbleMonster"] = "Twisted Pebble",
+    ["BlotMonster"] = "Twisted Blot",
+    ["LooeyMonster"] = "Twisted Looey",
+    ["ToodlesMonster"] = "Twisted Toodles",
+    ["FlutterMonster"] = "Twisted Flutter",
+    ["GlistenMonster"] = "Twisted Glisten",
+    ["FinnMonster"] = "Twisted Finn",
+    ["ConnieMonster"] = "Twisted Connie",
+    ["RazzleAndDazzleMonster"] = "Twisted Razzle and Dazzle",
+    ["RodgerMonster"] = "Twisted Rodger",
+    ["TeaganMonster"] = "Twisted Teagan",
+    ["BrushaMonster"] = "Twisted Brusha",
+    ["BrightneyMonster"] = "Twisted Brightney",
+    ["EggsonMonster"] = "Twisted Eggson",
+    ["RudieMonster"] = "Twisted Rudie",
+    ["RibeccaMonster"] = "Twisted Ribecca",
+    ["GigiMonster"] = "Twisted Gigi",
+    ["GingerMonster"] = "Twisted Ginger",
+    ["FlyteMonster"] = "Twisted Flyte",
+    ["SoulvesterMonster"] = "Twisted Soulvester",
+    ["CoalMonster"] = "Twisted Coal",
+    ["CocoaMonster"] = "Twisted Cocoa",
+    ["BassieMonster"] = "Twisted Bassie",
+    ["BobetteMonster"] = "Twisted Bobette",
+    ["GourdyMonster"] = "Twisted Gourdy"
 }
+
 local twistedActive = {}
 local twistedESPEnabled = false
 local twistedLoopRunning = false
 local TwistedMaxDistance = 150
+
 VisualTab:Toggle({
     Title = "Twisted ESP",
     Desc = "See twisteds in your run.",
@@ -615,6 +638,7 @@ VisualTab:Toggle({
         end
     end
 })
+
 local itemTargets = {
     ["AirHorn"] = "Air Horn",
     ["SmokeBomb"] = "Smoke Bomb",
@@ -646,10 +670,12 @@ local itemTargets = {
     ["CollectablePiece"] = "Halloween Card",
     ["TrickOrTreatDoor_Origin"] = "Halloween Door"
 }
+
 local activeItems = {}
 local itemEspEnabled = false
 local isItemLoopActive = false
 local maxItemDistance = 150
+
 VisualTab:Toggle({
     Title = "Item + Other ESP",
     Desc = "See useful items and other stuff such as research capsules, Halloween doors, etc",
@@ -760,23 +786,25 @@ AutomationTab:Button({
     Title = "Load VoidExtractor",
     Desc = "Loads VoidExtractor for autofarming.",
     Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
     end
 })
+
 AutomationTab:Button({
     Title = "Load BSGUI",
     Desc = "Loads Boxten Sex Gui.",
     Color = Color3.fromHex("#805d8f"),
     Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))("Boxten Sex GUI")
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))("Boxten Sex GUI")
     end
 })
+
 AutomationTab:Button({
     Title = "Load Riddance Hub",
     Desc = "Loads Riddance Hub.",
     Color = Color3.fromHex("#19191a"),
     Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
     end
 })
 
@@ -795,38 +823,41 @@ PlayerTab:Button({
     end
 })
 
+local autoStruggleSetup = false
+local autostrugglerunning = false
+
 PlayerTab:Button({
     Title = "Auto Struggle",
     Desc = "Automatically struggles when squirm catches you.",
     Color = Color3.fromHex("#19191a"),
     Callback = function()
-local TwistedSquirmGrabremote = replicated:WaitForChild("Events"):WaitForChild("TwistedSquirmGrab")
+        if autoStruggleSetup then return end
+        autoStruggleSetup = true
 
-local autostrugglerunning = false
-local squirmdir = "left"
+        local TwistedSquirmGrabremote = ReplicatedStorage:WaitForChild("Events"):WaitForChild("TwistedSquirmGrab")
+        local squirmdir = "left"
 
-TwistedSquirmGrabremote.OnClientEvent:Connect(function(action)
-	if action == "GrabStart" then
-		autostrugglerunning = true
-	elseif action == "GrabEnd" then
-		autostrugglerunning = false
-	end
-end)
+        TwistedSquirmGrabremote.OnClientEvent:Connect(function(action)
+            if action == "GrabStart" then
+                autostrugglerunning = true
+            elseif action == "GrabEnd" then
+                autostrugglerunning = false
+            end
+        end)
 
-task.spawn(function()
-	while true do
-		task.wait(0.06)
-		if autostrugglerunning then
-			if squirmdir == "left" then
-				TwistedSquirmGrabremote:FireServer("Struggle", "left")
-				squirmdir = "right"
-			else
-				TwistedSquirmGrabremote:FireServer("Struggle", "right")
-				squirmdir = "left"
-			end
-		end
-	end
-end)
-
+        task.spawn(function()
+            while true do
+                task.wait(0.06)
+                if autostrugglerunning then
+                    if squirmdir == "left" then
+                        TwistedSquirmGrabremote:FireServer("Struggle", "left")
+                        squirmdir = "right"
+                    else
+                        TwistedSquirmGrabremote:FireServer("Struggle", "right")
+                        squirmdir = "left"
+                    end
+                end
+            end
+        end)
+    end
 })
-
