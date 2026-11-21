@@ -412,7 +412,7 @@ local MainTab = Window:Tab({
 
 MainTab:Toggle({
 	Title = "Platform Flight",
-	Desc = "PC: E/Up climb, Q/Down descend, F toggle platform | Mobile: Thumbstick up/down",
+	Desc = "PC: E/Up up, Q/Down down, F platform | Mobile: Stick up/down",
 	Value = false,
 	Callback = function(state)
 		setPlatformFlight(state)
@@ -432,25 +432,6 @@ local function applyNoclip()
 		end
 	end
 end
-
--- Fixed HipHeight function
-local currentHipHeight = 2
-local function applyHipHeight(value)
-	currentHipHeight = value
-	local character = LocalPlayer.Character
-	if character then
-		local humanoid = character:FindFirstChildOfClass("Humanoid")
-		if humanoid then
-			humanoid.HipHeight = value
-		end
-	end
-end
-
--- Re-apply hip height on respawn
-LocalPlayer.CharacterAdded:Connect(function(char)
-	task.wait(0.5)
-	applyHipHeight(currentHipHeight)
-end)
 
 MainTab:Toggle({
 	Title = "Noclip",
@@ -492,7 +473,7 @@ local tpWalkSpeed = 0.12
 
 MainTab:Toggle({
 	Title = "TPWalk",
-	Desc = "Smooth movement boost using CFrame.",
+	Desc = "Walk speed boost",
 	Default = false,
 	Callback = function(state)
 		tpWalkEnabled = state
@@ -529,7 +510,7 @@ local brakeConnection = nil
 
 MainTab:Toggle({
 	Title = "No Slippery",
-	Desc = "Reduces ice/floor sliding when stopping.",
+	Desc = "Stop sliding around",
 	Default = false,
 	Callback = function(v)
 		noSlipperyEnabled = v
@@ -594,7 +575,7 @@ end)
 
 MainTab:Toggle({
 	Title = "Instant Skillcheck",
-	Desc = "Enable instant skillcheck by toggling this on.",
+	Desc = "Auto-win skillchecks",
 	Value = false,
 	Callback = function(state)
 		getgenv().scinstant = state
@@ -642,7 +623,7 @@ MainTab:Toggle({
 
 MainTab:Button({
 	Title = "Ability range",
-	Desc = "Increases your ability range.",
+	Desc = "Bigger ability range",
 	Callback = function()
 		local toons = {"Shelly", "Sprout", "Cosmo", "Scraps", "Glisten"}
 		local toonsTable = {}
@@ -672,7 +653,7 @@ MainTab:Button({
 
 MainTab:Button({
 	Title = "Streamer Mode",
-	Desc = "Useful for making videos!",
+	Desc = "Hide your real name",
 	Callback = function()
 		local character = LocalPlayer.Character
 		if character and character:FindFirstChild("HumanoidRootPart") then
@@ -687,7 +668,7 @@ MainTab:Button({
 
 MainTab:Button({
 	Title = "Anti Lag",
-	Desc = "Disables heavy effects/shadows and simplifies parts for higher FPS.",
+	Desc = "Lower graphics for better FPS",
 	Callback = function()
 		pcall(function()
 			Lighting.GlobalShadows = false
@@ -715,7 +696,7 @@ MainTab:Button({
 				optimizeObject(descendant)
 			end
 		end)
-		notify("Anti Lag", "Performance optimizations applied.", 2)
+		notify("Anti Lag", "Done.", 2)
 	end
 })
 
@@ -725,7 +706,7 @@ local baseShadows = Lighting.GlobalShadows
 local baseAmbient = Lighting.Ambient
 MainTab:Toggle({
 	Title = "Fullbright",
-	Desc = "Lights up your surroundings.",
+	Desc = "Brighten the map",
 	Value = false,
 	Callback = function(Value)
 		if Value then
@@ -742,23 +723,9 @@ MainTab:Toggle({
 	end,
 })
 
-MainTab:Slider({
-	Title = "Hip Height",
-	Desc = "Changes your hipheight. (Doesnt really work ingame.)",
-	Step = 0.1,
-	Value = {
-		Min = 0,
-		Max = 50,
-		Default = 2,
-	},
-	Callback = function(value)
-		applyHipHeight(value)
-	end,
-})
-
 MainTab:Toggle({
 	Title = "Instant Barnaby Minigame",
-	Desc = "Enable this to activate the minigame!",
+	Desc = "Run arcade minigame script",
 	Value = false,
 	Callback = function(state)
 		if state then
@@ -786,7 +753,7 @@ end
 local selectedPlayer = nil
 local Dropdown = Tab:Dropdown({
 	Title = "Select Player",
-	Desc = "Choose whose name you want to copy",
+	Desc = "Pick a player to copy",
 	Values = getPlayerList(),
 	Multi = false,
 	AllowNone = true,
@@ -887,7 +854,7 @@ local PlayerMaxDistance = 120
 
 VisualTab:Toggle({
 	Title = "Player ESP",
-	Desc = "See other players, doesn't work in solo runs.",
+	Desc = "Show other players",
 	Value = false,
 	Callback = function(state)
 		playerESPEnabled = state
@@ -1057,7 +1024,7 @@ local TwistedMaxDistance = 150
 
 VisualTab:Toggle({
 	Title = "Twisted ESP",
-	Desc = "See twisteds in your run.",
+	Desc = "Show twisteds",
 	Value = false,
 	Callback = function(state)
 		twistedESPEnabled = state
@@ -1212,7 +1179,7 @@ local maxItemDistance = 150
 
 VisualTab:Toggle({
 	Title = "Item + Other ESP",
-	Desc = "See useful items and other stuff such as research capsules, Halloween doors, etc",
+	Desc = "Show items, capsules, doors",
 	Value = false,
 	Callback = function(toggledState)
 		itemEspEnabled = toggledState
@@ -1337,7 +1304,7 @@ end
 
 VisualTab:Toggle({
 	Title = "Machine ESP",
-	Desc = "Highlights unfinished machines and shows progress.",
+	Desc = "Show unfinished machines",
 	Value = false,
 	Callback = function(state)
 		machineEspEnabled = state
@@ -1454,7 +1421,7 @@ local TeleportTab = Window:Tab({
 
 TeleportTab:Button({
 	Title = "Teleport To Elevator",
-	Desc = "Teleports to the elevator if no Twisted is right next to it.",
+	Desc = "TP to elevator if safe",
 	Callback = function()
 		local hrp = getHRP()
 		if not hrp then return end
@@ -1489,7 +1456,7 @@ TeleportTab:Button({
 
 TeleportTab:Button({
 	Title = "Teleport To Machine",
-	Desc = "Teleports to a safe, unfinished machine.",
+	Desc = "TP to a safe machine",
 	Callback = function()
 		performTeleportToMachine()
 	end,
@@ -1528,7 +1495,7 @@ local AutomationTab = Window:Tab({
 
 AutomationTab:Button({
 	Title = "Load VoidExtractor",
-	Desc = "Loads VoidExtractor for autofarming.",
+	Desc = "Autofarm script",
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/seannstar/voidextractor/refs/heads/main/VoidExtractor.lua"))()
 	end
@@ -1536,7 +1503,7 @@ AutomationTab:Button({
 
 AutomationTab:Button({
 	Title = "Load BSGUI",
-	Desc = "Loads Boxten Sex Gui.",
+	Desc = "Boxten Sex Gui",
 	Color = Color3.fromHex("#805d8f"),
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/Team-Noxious/Roblox/refs/heads/main/Loader.lua"))("Boxten Sex GUI")
@@ -1545,10 +1512,20 @@ AutomationTab:Button({
 
 AutomationTab:Button({
 	Title = "Load Riddance Hub",
-	Desc = "Loads Riddance Hub.",
+	Desc = "Riddance Hub",
 	Color = Color3.fromHex("#19191a"),
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
+	end
+})
+
+AutomationTab:Button({
+	Title = "Load Pawa 3",
+	Desc = "pawa3.lua",
+	Callback = function()
+		pcall(function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/catcatcat-ca/pawa/refs/heads/main/pawa3.lua"))()
+		end)
 	end
 })
 
@@ -1561,7 +1538,7 @@ local PlayerTab = Window:Tab({
 -- thanks abstractlite !!
 PlayerTab:Button({
 	Title = "Infinite Stamina",
-	Desc = "Gives you infinite stamina.",
+	Desc = "Inf stamina",
 	Color = Color3.fromHex("#19191a"),
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/abelsrighthand/AbstractLite/refs/heads/main/abstractlite(infstam).lua"))()
@@ -1573,7 +1550,7 @@ local popUpEventConnection = nil
 
 PlayerTab:Toggle({
 	Title = "Anti Twisted Vee Popup",
-	Desc = "Blocks client PopUpEvent popups.",
+	Desc = "Block Vee popups",
 	Default = false,
 	Callback = function(v)
 		adPopupsBlockEnabled = v
@@ -1624,7 +1601,7 @@ PlayerTab:Toggle({
 local itemAuraEnabled = false
 PlayerTab:Toggle({
 	Title = "Item Aura",
-	Desc = "Automatically triggers nearby ProximityPrompts safely.",
+	Desc = "Auto-grab nearby prompts",
 	Default = false,
 	Callback = function(v)
 		itemAuraEnabled = v
@@ -1674,7 +1651,7 @@ local originalHoldDurations = {}
 
 PlayerTab:Toggle({
 	Title = "Instant Prompt Hold",
-	Desc = "Sets ProximityPrompt HoldDuration to 0.",
+	Desc = "0s prompt hold time",
 	Default = false,
 	Callback = function(v)
 		instantPromptEnabled = v
@@ -1706,7 +1683,7 @@ PlayerTab:Toggle({
 local autoUseItemsEnabled = false
 PlayerTab:Toggle({
 	Title = "Auto Use Items",
-	Desc = "Periodically invokes ItemEvent on inventory slots.",
+	Desc = "Auto-use inventory items",
 	Default = false,
 	Callback = function(v)
 		autoUseItemsEnabled = v
@@ -1736,7 +1713,7 @@ end)
 local autoAbilityEnabled = false
 PlayerTab:Toggle({
 	Title = "Auto Use Ability",
-	Desc = "Periodically invokes AbilityEvent.",
+	Desc = "Auto-use ability",
 	Default = false,
 	Callback = function(v)
 		autoAbilityEnabled = v
