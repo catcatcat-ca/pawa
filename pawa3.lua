@@ -4,6 +4,7 @@ local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -136,6 +137,17 @@ local function teleportTo(name, isExact)
 	return false
 end
 
+local function isMachineCompleted(model)
+	local stats = model:FindFirstChild("Stats") or (model.Parent and model.Parent:FindFirstChild("Stats"))
+	if stats then
+		local completed = stats:FindFirstChild("Completed")
+		if completed and completed.Value == true then
+			return true
+		end
+	end
+	return false
+end
+
 local function performTeleportToMachine()
 	local hrp = getHRP()
 	if not hrp then return end
@@ -149,14 +161,7 @@ local function performTeleportToMachine()
 		if not ignoredNames[obj.Name] and obj:IsA("Model") then
 			local nameLower = obj.Name:lower()
 			if nameLower == "generator" or nameLower == "generators" or nameLower:find("generator") or nameLower:find("dual_generator") or nameLower:find("dualgen") or nameLower:find("trickortreatgen") then
-				local stats = obj:FindFirstChild("Stats") or (obj.Parent and obj.Parent:FindFirstChild("Stats"))
-				local isCompleted = false
-				if stats then
-					local completed = stats:FindFirstChild("Completed")
-					if completed and completed.Value == true then isCompleted = true end
-				end
-
-				if not isCompleted then
+				if not isMachineCompleted(obj) then
 					local part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
 					if part and not isTwistedNearby(part.Position, 30) and not isElevatorNearby(part.Position, 30) then
 						table.insert(generators, part)
@@ -411,8 +416,8 @@ local MainTab = Window:Tab({
 })
 
 MainTab:Toggle({
-	Title = "Platform Flight",
-	Desc = "PC: E/Up up, Q/Down down, F platform | Mobile: Stick up/down",
+	Title = "Fly",
+	Desc = "Flies you across the map. Kinda buggy... (pc: E/Up up, Q/Down down)",
 	Value = false,
 	Callback = function(state)
 		setPlatformFlight(state)
@@ -473,7 +478,7 @@ local tpWalkSpeed = 0.12
 
 MainTab:Toggle({
 	Title = "TPWalk",
-	Desc = "Walk speed boost",
+	Desc = "Walk speed boost.",
 	Default = false,
 	Callback = function(state)
 		tpWalkEnabled = state
@@ -510,7 +515,7 @@ local brakeConnection = nil
 
 MainTab:Toggle({
 	Title = "No Slippery",
-	Desc = "Stop sliding around",
+	Desc = "Stop sliding around.",
 	Default = false,
 	Callback = function(v)
 		noSlipperyEnabled = v
@@ -575,7 +580,7 @@ end)
 
 MainTab:Toggle({
 	Title = "Instant Skillcheck",
-	Desc = "Auto-win skillchecks",
+	Desc = "Automatically does the skillcheck for you.",
 	Value = false,
 	Callback = function(state)
 		getgenv().scinstant = state
@@ -623,7 +628,7 @@ MainTab:Toggle({
 
 MainTab:Button({
 	Title = "Ability range",
-	Desc = "Bigger ability range",
+	Desc = "Bigger ability range.",
 	Callback = function()
 		local toons = {"Shelly", "Sprout", "Cosmo", "Scraps", "Glisten"}
 		local toonsTable = {}
@@ -668,7 +673,7 @@ MainTab:Button({
 
 MainTab:Button({
 	Title = "Anti Lag",
-	Desc = "Lower graphics for better FPS",
+	Desc = "Lower graphics for better FPS.",
 	Callback = function()
 		pcall(function()
 			Lighting.GlobalShadows = false
@@ -706,7 +711,7 @@ local baseShadows = Lighting.GlobalShadows
 local baseAmbient = Lighting.Ambient
 MainTab:Toggle({
 	Title = "Fullbright",
-	Desc = "Brighten the map",
+	Desc = "Brighten the map.",
 	Value = false,
 	Callback = function(Value)
 		if Value then
@@ -725,7 +730,7 @@ MainTab:Toggle({
 
 MainTab:Toggle({
 	Title = "Instant Barnaby Minigame",
-	Desc = "Run arcade minigame script",
+	Desc = "Instantly does the barnaby minigame for you.",
 	Value = false,
 	Callback = function(state)
 		if state then
@@ -753,7 +758,7 @@ end
 local selectedPlayer = nil
 local Dropdown = Tab:Dropdown({
 	Title = "Select Player",
-	Desc = "Pick a player to copy",
+	Desc = "Pick a player to copy their username.",
 	Values = getPlayerList(),
 	Multi = false,
 	AllowNone = true,
@@ -763,12 +768,12 @@ local Dropdown = Tab:Dropdown({
 })
 
 Tab:Button({
-	Title = "Refresh Player List",
+	Title = "Refresh Player List.",
 	Callback = function()
 		Dropdown:Refresh(getPlayerList())
 		WindUI:Notify({
 			Title = "Refreshed",
-			Content = "Player list updated",
+			Content = "Player list updated.",
 			Duration = 2
 		})
 	end
@@ -780,7 +785,7 @@ Tab:Button({
 		if not selectedPlayer then
 			WindUI:Notify({
 				Title = "Error",
-				Content = "Please select a player first!",
+				Content = "Please select a player first!!",
 				Duration = 3
 			})
 			return
@@ -789,7 +794,7 @@ Tab:Button({
 		if not target then
 			WindUI:Notify({
 				Title = "Error",
-				Content = "Player not found anymore",
+				Content = "Player not found anymore...",
 				Duration = 3
 			})
 			return
@@ -854,7 +859,7 @@ local PlayerMaxDistance = 120
 
 VisualTab:Toggle({
 	Title = "Player ESP",
-	Desc = "Show other players",
+	Desc = "Show other players.",
 	Value = false,
 	Callback = function(state)
 		playerESPEnabled = state
@@ -965,15 +970,6 @@ VisualTab:Toggle({
 	end
 })
 
-VisualTab:Slider({
-	Title = "Player ESP Distance",
-	Step = 10,
-	Value = { Min = 30, Max = 500, Default = 120 },
-	Callback = function(v)
-		PlayerMaxDistance = v
-	end,
-})
-
 local targets = {
 	["YattaMonster"] = "Twisted Yatta",
 	["BoxtenMonster"] = "Twisted Boxten",
@@ -1024,7 +1020,7 @@ local TwistedMaxDistance = 150
 
 VisualTab:Toggle({
 	Title = "Twisted ESP",
-	Desc = "Show twisteds",
+	Desc = "Show twisteds.",
 	Value = false,
 	Callback = function(state)
 		twistedESPEnabled = state
@@ -1131,15 +1127,6 @@ VisualTab:Toggle({
 	end
 })
 
-VisualTab:Slider({
-	Title = "Twisted ESP Distance",
-	Step = 10,
-	Value = { Min = 30, Max = 500, Default = 150 },
-	Callback = function(v)
-		TwistedMaxDistance = v
-	end,
-})
-
 local itemTargets = {
 	["AirHorn"] = "Air Horn",
 	["SmokeBomb"] = "Smoke Bomb",
@@ -1179,7 +1166,7 @@ local maxItemDistance = 150
 
 VisualTab:Toggle({
 	Title = "Item + Other ESP",
-	Desc = "Show items, capsules, doors",
+	Desc = "Show items, capsules, doors.",
 	Value = false,
 	Callback = function(toggledState)
 		itemEspEnabled = toggledState
@@ -1278,33 +1265,13 @@ VisualTab:Toggle({
 	end
 })
 
-VisualTab:Slider({
-	Title = "Item ESP Distance",
-	Step = 10,
-	Value = { Min = 30, Max = 500, Default = 150 },
-	Callback = function(v)
-		maxItemDistance = v
-	end,
-})
-
 local machineEspEnabled = false
 local machineActive = {}
 local machineLoopRunning = false
 
-local function isMachineCompleted(model)
-	local stats = model:FindFirstChild("Stats") or (model.Parent and model.Parent:FindFirstChild("Stats"))
-	if stats then
-		local completed = stats:FindFirstChild("Completed")
-		if completed and completed.Value == true then
-			return true
-		end
-	end
-	return false
-end
-
 VisualTab:Toggle({
 	Title = "Machine ESP",
-	Desc = "Show unfinished machines",
+	Desc = "Show machines.",
 	Value = false,
 	Callback = function(state)
 		machineEspEnabled = state
@@ -1421,7 +1388,7 @@ local TeleportTab = Window:Tab({
 
 TeleportTab:Button({
 	Title = "Teleport To Elevator",
-	Desc = "TP to elevator if safe",
+	Desc = "Teleport to Elevator.",
 	Callback = function()
 		local hrp = getHRP()
 		if not hrp then return end
@@ -1467,7 +1434,7 @@ local tpItemList = {
 	"HealthKit", "Bandage", "Tape", "Instructions", "ExtractionSpeedCandy", "SkillCheckCandy",
 	"StaminaCandy", "StealthCandy", "SpeedCandy", "Gumball", "BonBon", "Chocolate",
 	"ChocolateBox", "Pop", "PopBottle", "JumperCable", "Stopwatch", "ChristmasCookie",
-	"DandyEasterEggs", "Pumpkin", "FakeCapsule", "CollectablePiece", "TrickOrTreatDoor_Origin",
+	"DandyEasterEggs", "Pumpkin", "FakeCapsule"
 }
 local selectedTpItem = tpItemList[1]
 
@@ -1487,13 +1454,219 @@ TeleportTab:Button({
 	end,
 })
 
--- ================= OTHER SCRIPTS TAB =================
+-- ================= AUTOMATION TAB =================
 local AutomationTab = Window:Tab({
+	Title = "Automation",
+	Icon = "bot",
+})
+
+local autoSkillcheckEnabled = false
+AutomationTab:Toggle({
+	Title = "Auto Skillcheck",
+	Desc = "Automatically does the skillcheck.",
+	Value = false,
+	Callback = function(state)
+		autoSkillcheckEnabled = state
+	end,
+})
+
+task.spawn(function()
+	while true do
+		if autoSkillcheckEnabled then
+			pcall(function()
+				local playerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+				if playerGui then
+					for _, gui in ipairs(playerGui:GetDescendants()) do
+						if gui:IsA("GuiObject") and gui.Visible then
+							local n = gui.Name:lower()
+							if n:find("skillcheck") or n:find("skill_check") then
+								if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+									firesignal(gui.MouseButton1Click)
+								else
+									local cx = gui.AbsolutePosition.X + (gui.AbsoluteSize.X / 2)
+									local cy = gui.AbsolutePosition.Y + (gui.AbsoluteSize.Y / 2)
+									VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+									task.wait(0.03)
+									VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+									task.wait(0.03)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+								end
+								break
+							end
+						end
+					end
+				end
+			end)
+		end
+		task.wait(0.15)
+	end
+end)
+
+local autoFarmMachinesEnabled = false
+AutomationTab:Toggle({
+	Title = "Auto Farm Machines",
+	Desc = "Automatically teleports you to a machine.",
+	Value = false,
+	Callback = function(state)
+		autoFarmMachinesEnabled = state
+	end,
+})
+
+task.spawn(function()
+	while true do
+		if autoFarmMachinesEnabled then
+			pcall(function()
+				local hrp = getHRP()
+				if hrp then
+					if isTwistedNearby(hrp.Position, 28) then
+						performTeleportToMachine()
+						task.wait(2)
+					else
+						local foundPrompt = false
+						for _, obj in ipairs(workspace:GetDescendants()) do
+							if obj:IsA("ProximityPrompt") and obj.Enabled and obj.Parent then
+								local pName = obj.Parent.Name:lower()
+								local anc = obj.Parent
+								local isGen = pName:find("generator") or pName:find("machine")
+								while anc and anc ~= workspace and not isGen do
+									local aName = anc.Name:lower()
+									if aName:find("generator") or aName:find("dualgen") or aName:find("trickortreatgen") then
+										isGen = true
+										break
+									end
+									anc = anc.Parent
+								end
+								if isGen and anc and not isMachineCompleted(anc) then
+									local pos = obj.Parent:IsA("BasePart") and obj.Parent.Position or (anc:IsA("Model") and anc:GetPivot().Position)
+									if pos and canInteractWithPosition(pos) then
+										if (pos - hrp.Position).Magnitude > 10 then
+											hrp.CFrame = CFrame.new(pos) + Vector3.new(0, 3, 0)
+											task.wait(0.4)
+										end
+										fireproximityprompt(obj)
+										foundPrompt = true
+										break
+									end
+								end
+							end
+						end
+						if not foundPrompt then
+							performTeleportToMachine()
+							task.wait(2.5)
+						end
+					end
+				end
+			end)
+			task.wait(1.2)
+		else
+			task.wait(0.4)
+		end
+	end
+end)
+
+local autoCollectItemsEnabled = false
+AutomationTab:Toggle({
+	Title = "Auto Collect Items",
+	Desc = "Automatically collects items for you.",
+	Value = false,
+	Callback = function(state)
+		autoCollectItemsEnabled = state
+	end,
+})
+
+task.spawn(function()
+	while true do
+		if autoCollectItemsEnabled then
+			pcall(function()
+				local hrp = getHRP()
+				if hrp then
+					for _, obj in ipairs(workspace:GetDescendants()) do
+						if obj:IsA("Model") and itemTargets[obj.Name] and obj.Name ~= "FakeCapsule" then
+							local part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+							if part and canInteractWithPosition(part.Position) then
+								hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+								task.wait(0.25)
+								for _, desc in ipairs(obj:GetDescendants()) do
+									if desc:IsA("ProximityPrompt") and desc.Enabled then
+										fireproximityprompt(desc)
+									end
+								end
+								task.wait(0.6)
+								break
+							end
+						end
+					end
+				end
+			end)
+			task.wait(1)
+		else
+			task.wait(0.4)
+		end
+	end
+end)
+
+local autoUseItemsEnabled = false
+AutomationTab:Toggle({
+	Title = "Auto Use Items",
+	Desc = "Auto-use inventory items.",
+	Value = false,
+	Callback = function(v)
+		autoUseItemsEnabled = v
+	end,
+})
+
+task.spawn(function()
+	while true do
+		if autoUseItemsEnabled then
+			pcall(function()
+				local char = LocalPlayer.Character
+				if char and char:FindFirstChild("Inventory") then
+					local inv = char.Inventory
+					for i = 1, 3 do
+						local slot = inv:FindFirstChild("Slot" .. tostring(i))
+						if slot and ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("ItemEvent") then
+							ReplicatedStorage.Events.ItemEvent:InvokeServer(char, slot)
+						end
+					end
+				end
+			end)
+		end
+		task.wait(1)
+	end
+end)
+
+local autoAbilityEnabled = false
+AutomationTab:Toggle({
+	Title = "Auto Use Ability",
+	Desc = "Auto-use ability.",
+	Value = false,
+	Callback = function(v)
+		autoAbilityEnabled = v
+	end,
+})
+
+task.spawn(function()
+	while true do
+		if autoAbilityEnabled then
+			local hrp = getHRP()
+			pcall(function()
+				if LocalPlayer.Character and hrp and ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("AbilityEvent") then
+					ReplicatedStorage.Events.AbilityEvent:InvokeServer(LocalPlayer.Character, hrp.CFrame, false)
+				end
+			end)
+		end
+		task.wait(1.5)
+	end
+end)
+
+-- ================= OTHER SCRIPTS TAB =================
+local OtherScriptsTab = Window:Tab({
 	Title = "Other Scripts",
 	Icon = "settings",
 })
 
-AutomationTab:Button({
+OtherScriptsTab:Button({
 	Title = "Load VoidExtractor",
 	Desc = "Autofarm script",
 	Callback = function()
@@ -1501,7 +1674,7 @@ AutomationTab:Button({
 	end
 })
 
-AutomationTab:Button({
+OtherScriptsTab:Button({
 	Title = "Load BSGUI",
 	Desc = "Boxten Sex Gui",
 	Color = Color3.fromHex("#805d8f"),
@@ -1510,22 +1683,12 @@ AutomationTab:Button({
 	end
 })
 
-AutomationTab:Button({
+OtherScriptsTab:Button({
 	Title = "Load Riddance Hub",
 	Desc = "Riddance Hub",
 	Color = Color3.fromHex("#19191a"),
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/riddance-club/script/refs/heads/main/loader.lua"))()
-	end
-})
-
-AutomationTab:Button({
-	Title = "Load Pawa 3",
-	Desc = "pawa3.lua",
-	Callback = function()
-		pcall(function()
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/catcatcat-ca/pawa/refs/heads/main/pawa3.lua"))()
-		end)
 	end
 })
 
@@ -1538,7 +1701,7 @@ local PlayerTab = Window:Tab({
 -- thanks abstractlite !!
 PlayerTab:Button({
 	Title = "Infinite Stamina",
-	Desc = "Inf stamina",
+	Desc = "Gives you infinite stamina.",
 	Color = Color3.fromHex("#19191a"),
 	Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/abelsrighthand/AbstractLite/refs/heads/main/abstractlite(infstam).lua"))()
@@ -1550,7 +1713,7 @@ local popUpEventConnection = nil
 
 PlayerTab:Toggle({
 	Title = "Anti Twisted Vee Popup",
-	Desc = "Block Vee popups",
+	Desc = "Block Vee popups.",
 	Default = false,
 	Callback = function(v)
 		adPopupsBlockEnabled = v
@@ -1601,7 +1764,7 @@ PlayerTab:Toggle({
 local itemAuraEnabled = false
 PlayerTab:Toggle({
 	Title = "Item Aura",
-	Desc = "Auto-grab nearby prompts",
+	Desc = "Grab items around the map.",
 	Default = false,
 	Callback = function(v)
 		itemAuraEnabled = v
@@ -1643,93 +1806,5 @@ task.spawn(function()
 		else
 			task.wait(0.25)
 		end
-	end
-end)
-
-local instantPromptEnabled = false
-local originalHoldDurations = {}
-
-PlayerTab:Toggle({
-	Title = "Instant Prompt Hold",
-	Desc = "0s prompt hold time",
-	Default = false,
-	Callback = function(v)
-		instantPromptEnabled = v
-		if instantPromptEnabled then
-			task.spawn(function()
-				while instantPromptEnabled do
-					for _, obj in ipairs(workspace:GetDescendants()) do
-						if obj:IsA("ProximityPrompt") then
-							if not originalHoldDurations[obj] then
-								originalHoldDurations[obj] = obj.HoldDuration
-							end
-							obj.HoldDuration = 0
-						end
-					end
-					task.wait(2)
-				end
-			end)
-		else
-			for prompt, originalDuration in pairs(originalHoldDurations) do
-				if prompt and prompt.Parent then
-					prompt.HoldDuration = originalDuration
-				end
-			end
-			originalHoldDurations = {}
-		end
-	end,
-})
-
-local autoUseItemsEnabled = false
-PlayerTab:Toggle({
-	Title = "Auto Use Items",
-	Desc = "Auto-use inventory items",
-	Default = false,
-	Callback = function(v)
-		autoUseItemsEnabled = v
-	end,
-})
-
-task.spawn(function()
-	while true do
-		if autoUseItemsEnabled then
-			pcall(function()
-				local char = LocalPlayer.Character
-				if char and char:FindFirstChild("Inventory") then
-					local inv = char.Inventory
-					for i = 1, 3 do
-						local slot = inv:FindFirstChild("Slot" .. tostring(i))
-						if slot and ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("ItemEvent") then
-							ReplicatedStorage.Events.ItemEvent:InvokeServer(char, slot)
-						end
-					end
-				end
-			end)
-		end
-		task.wait(1)
-	end
-end)
-
-local autoAbilityEnabled = false
-PlayerTab:Toggle({
-	Title = "Auto Use Ability",
-	Desc = "Auto-use ability",
-	Default = false,
-	Callback = function(v)
-		autoAbilityEnabled = v
-	end,
-})
-
-task.spawn(function()
-	while true do
-		if autoAbilityEnabled then
-			local hrp = getHRP()
-			pcall(function()
-				if LocalPlayer.Character and hrp and ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("AbilityEvent") then
-					ReplicatedStorage.Events.AbilityEvent:InvokeServer(LocalPlayer.Character, hrp.CFrame, false)
-				end
-			end)
-		end
-		task.wait(1.5)
 	end
 end)
